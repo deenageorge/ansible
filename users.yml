@@ -1,0 +1,37 @@
+---
+- name: user creation
+  hosts: all
+  become: true
+  vars_files:
+    - user_list.yml
+    - locker.yml
+  tasks:
+    - name: create group admin on dev & test
+      group:
+        name: admin
+        state: present
+      when: inventory_hostname in groups['dev'] or inventory_hostname in groups['test']
+
+    - name: create group opsmgr in prod
+      group:                           
+        name: opsmgr                    
+        state: present                 
+      when: inventory_hostname in groups['prod']
+
+    - name: create user on dev & test
+      user:
+        name: "{{ item.name }}"
+        groups: admin
+        state: present
+        password: "{{ pw_developer | password_hash('sha512') }}"
+      loop: "{{ users }}"
+      when: (item.job == "developer" and inventory_hostname in groups['dev']) or (item.job == "developer" and inventory_hostname in groups['test'])
+    - name: create user on prod                                                                                                    
+      user:                                                                                                                                      
+        name: "{{ item.name }}"                                                                                                                  
+        groups: opsmgr                                                                                                                            
+        state: present                                                                                                                           
+        password: "{{ pw_manager | password_hash('sha512') }}"                                                                                 
+      loop: "{{ users }}"                                                                                                                        
+      when: (item.job == "manager" and inventory_hostname in groups['prod']) 
+
