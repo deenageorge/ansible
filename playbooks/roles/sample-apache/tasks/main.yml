@@ -1,0 +1,34 @@
+---
+# tasks file for sample-apache
+- name: installing httpd & firewalld
+  yum:
+    name:
+      - httpd
+      - firewalld
+    state: latest
+
+- name: staring httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: enabling firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: ading rule
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: true
+
+- name: using template
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+

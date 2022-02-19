@@ -1,0 +1,5 @@
+- src: http://bastion.lab.example.com/phpinfo.tar
+  name: phpinfo
+
+- src: http://bastion.lab.example.com/haproxy.tar
+  name: haproxy

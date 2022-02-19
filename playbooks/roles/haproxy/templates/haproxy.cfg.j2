@@ -1,0 +1,9 @@
+frontend http-in
+        bind *:80
+        default_backend servers
+
+backend servers
+    	balance     {{ balance }}
+    	{% for host in groups.webservers %}
+        	server {{ host }} {{ hostvars[host]['ansible_' + iface ].ipv4.address }}:{{ httpd_port }}
+    	{% endfor %}

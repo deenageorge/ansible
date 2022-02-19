@@ -1,0 +1,8 @@
+---
+# tasks file for phpinfo
+
+- name: generate php info page
+  template:
+    src: hello.php.j2
+    dest: /var/www/html/hello.php
+

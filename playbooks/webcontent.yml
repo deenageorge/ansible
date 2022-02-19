@@ -1,0 +1,33 @@
+---
+- name: ceate a web content
+  hosts: test
+  become: yes
+  roles:
+    - sample-apache
+  tasks:
+    - name: create webdev group
+      group:
+        name: webdev
+        state: present
+    - name: create /webdev directory
+      file:
+        path: /webdev
+        group: webdev
+        mode: '2775'
+        setype: httpd_sys_content_t
+        state: directory
+        recurse: yes
+    - name: create symbolic link
+      file:
+        src: /webdev
+        dest: /var/www/html/webdev
+        state: link
+        setype: httpd_sys_content_t
+    - name: create index file
+      copy:
+        content: 'Development'
+        dest: /webdev/index.html
+        setype: httpd_sys_content_t
+
+
+

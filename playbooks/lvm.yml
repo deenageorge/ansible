@@ -1,0 +1,69 @@
+---
+- name: lvm creation
+  hosts: all
+  become: yes
+  vars:
+    volgroup:
+      - name: research
+        lvname: data
+  tasks:
+    - name: display custom message
+      debug:
+        msg: "volume group does not exist "
+      loop: "{{ volgroup }}"
+      when: item.name not in ansible_lvm['vgs']
+
+    - name: lvm creation if volume is present
+      lvol:
+        vg: "{{ item.name }}"
+        lv: "{{ item.lvname }}"
+        size: 700m
+      loop: "{{ volgroup }}"
+      when: 
+        - item.name in ansible_lvm['vgs']
+        - ansible_lvm['vgs']['research']['size_g'] >= '0.70'
+    
+    - name: vg doesnt have enough space
+      debug:
+        msg: "Could not create logical volume of that size "                 
+      loop: "{{ volgroup }}"    
+      when:
+        - item.name in ansible_lvm['vgs']
+        - ansible_lvm['vgs']['research']['size_g'] < '0.70'
+
+    - name: lvm creation using 300Mb
+      lvol:                         
+        vg: "{{ item.name }}"       
+        lv: "{{ item.lvname }}"     
+        size: 300m                  
+      loop: "{{ volgroup }}"        
+      when: 
+        - item.name in ansible_lvm['vgs']
+        - ansible_lvm['vgs']['research']['size_g'] < '0.70'
+
+    - name: creating filesystem
+      filesystem:
+        fstype: ext4
+        dev: "/dev/{{ item.name }}/{{ item.lvname }}"
+      loop: "{{ volgroup }}"
+      when:
+        - item.name in ansible_lvm['vgs']     
+
+    - name: mounting
+      mount:
+        path: /newpart
+        src: "/dev/{{ item.name }}/{{ item.lvname }}"
+        fstype: ext4
+        state: mounted
+      loop: "{{ volgroup }}"
+      when:
+        - item.name in ansible_lvm['vgs']
+
+
+
+
+
+
+
+
+      

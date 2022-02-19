@@ -1,0 +1,12 @@
+---
+- name: play book for php
+  hosts: webservers
+  become: true
+  roles:
+    - phpinfo
+
+- name: playbook for balancers
+  hosts: balancers
+  become: true
+  roles:
+    - haproxy

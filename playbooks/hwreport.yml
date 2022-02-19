@@ -1,0 +1,70 @@
+---
+- name: generate hw report
+  hosts: all
+  become: true
+  tasks:
+    - name: downlaod hwreport.empty
+      get_url:
+        url: http://bastion.lab.example.com/hwreport.empty
+        dest: /root/hwreport.txt
+    
+    - name: modify inventory hostname
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^HOST="
+        line: "HOST={{ ansible_hostname }}\n"
+        state: present
+      when: inventory_hostname == ansible_hostname
+
+    - name: modify memory 
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^MEMORY="
+        line: "HOST={{ ansible_memtotal_mb }}\n"
+        state: present
+      when: ansible_memtotal_mb is defined
+
+    - name: modify bios version
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^BIOS="
+        line: "BIOS={{ ansible_bios_version }}\n"
+        state: present
+      when: ansible_bios_version is defined
+
+    - name: modify vda if present
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^DISK_SIZE_VDA="
+        line: "DISK_SIZE_VDA={{ ansible_devices.vda.size }}\n"
+        state: present
+      when: ansible_devices.vda.size is defined
+
+    - name: modify vda if not present
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^DISK_SIZE_VDA="
+        line: "DISK_SIZE_VDA=NONE\n"
+        state: present
+      when: ansible_devices.vda.size is not defined
+
+    - name: modify vdb
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^DISK_SIZE_VDB="
+        line: "DISK_SIZE_VDA={{'ansible_devices.vdb.size'}}\n"
+        state: present
+      when: ansible_devices.vdb.size is  defined
+
+    - name: modify vdb is not
+      lineinfile:
+        path: /root/hwreport.txt
+        regexp: "^DISK_SIZE_VDB="
+        line: "DISK_SIZE_VDA=NONE\n"
+        state: present
+      when: ansible_devices.vdb.size is not defined
+
+
+
+
+

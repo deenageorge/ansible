@@ -1,0 +1,15 @@
+---
+- name: setting selinux
+  hosts: all
+  become: yes
+  vars:
+    selinux_state: enforcing
+  tasks:
+    - name: selinux creating
+      block:
+        - include_role:
+            name: rhel-system-roles.selinux
+      rescue:
+        - name: rebootinh
+          reboot:
+ 
