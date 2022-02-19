@@ -1,0 +1,32 @@
+---
+- name: partion requirements for vdb
+  hosts: all
+  become: true
+  tasks:
+    - name: partion creation
+      parted: 
+        device: /dev/vdb
+        number: 1
+        state: present
+        part_end: 900MiB
+      when: inventory_hostname in groups['dev'] or inventory_hostname in groups['test']
+
+    - name: partion creation for prod
+      parted:
+        device: /dev/vdb
+        number: 1
+        state: present
+        part_end: 400MiB
+      when: inventory_hostname in groups['prod']
+
+
+    - name: creating pv
+      command: pvcreate /dev/vdb1
+
+    - name: create vg
+      lvg:
+        vg: research
+        pvs: /dev/vdb1
+    
+
+
