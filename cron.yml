@@ -1,0 +1,13 @@
+---
+- name: cron
+  hosts: all
+  become: true
+  tasks:
+    - name: setting cron
+      cron:
+        name: "check dirs"
+        minute: "*/2"
+        hour: "*"
+        job: "logger Exam 294 is in progress"
+        user: devops
+
