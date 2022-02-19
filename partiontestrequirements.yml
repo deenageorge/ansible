@@ -9,7 +9,7 @@
         number: 1
         state: present
         part_end: 900MiB
-      when: inventory_hostname in groups['dev'] or inventory_hostname in groups['test']
+      when: inventory_hostname in groups['dev'] 
 
     - name: partion creation for prod
       parted:
